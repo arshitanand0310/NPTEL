@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './styles.css';
 
-import TechnologyCommercialization from './TechnologyCommercialization';
+import TechnologyCommercialization from './Technologycommercialization';
 import AboutCourse40Page from './AboutCourse40Page';
 import Industry40Page from './Industry40Page';
 
