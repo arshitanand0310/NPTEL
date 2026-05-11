@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './styles.css';
 
-import TechnologyCommercialization from './Technologycommercialization';
-import AboutCourse40Page from './AboutCourse40page';
+import Technologycommercialization from './Technologycommercialization';
+import AboutCourse40Page from './AboutCourse40Page';
 import Industry40page from './Industry40page';
 import MyCertificationsPage from './MyCertificationsPage';
-import SignIn from './Signin';
-import SignUp from './Signup'; 
+import Signin from './Signin';
+import Signup from './Signup'; 
 
 // ── Header Component ──
 function Header({ onNavigate }) {
