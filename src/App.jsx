@@ -392,7 +392,7 @@ function Footer() {
   );
 }
 
-// ── Layout wrapper (Header + Footer) for authenticated pages ──
+// ── Layout wrapper ──
 function AppLayout({ children }) {
   return (
     <div className="app-container">
@@ -403,23 +403,20 @@ function AppLayout({ children }) {
   );
 }
 
-// ── Main App ──
+// ── Main App ──  ✅ ALL NAMES NOW MATCH IMPORTS
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Sign-in page: no Header/Footer */}
         <Route path="/signin" element={<Signin />} />
-
-        {/* All other pages: with Header + Footer */}
-        <Route path="/" element={<AppLayout><TechnologyCommercialization /></AppLayout>} />
-        <Route path="/tech-commercialization" element={<AppLayout><TechnologyCommercialization /></AppLayout>} />
+        <Route path="/" element={<AppLayout><Technologycommercialization /></AppLayout>} />
+        <Route path="/tech-commercialization" element={<AppLayout><Technologycommercialization /></AppLayout>} />
         <Route path="/profile" element={<AppLayout><MyProfilePage /></AppLayout>} />
         <Route path="/mycourses" element={<AppLayout><MyCoursesPage /></AppLayout>} />
-        <Route path="/ind40" element={<AppLayout><Industry40Page /></AppLayout>} />
+        <Route path="/ind40" element={<AppLayout><Industry40page /></AppLayout>} />
         <Route path="/ind40/about" element={<AppLayout><AboutCourse40Page /></AppLayout>} />
         <Route path="/certifications" element={<AppLayout><MyCertificationsPage /></AppLayout>} />
-        <Route path="/signup" element={<Signup />} /> 
+        <Route path="/signup" element={<Signup />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
