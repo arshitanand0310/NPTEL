@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './styles.css';
 
 import TechnologyCommercialization from './Technologycommercialization';
-import AboutCourse40Page from './AboutCourse40Page';
-import Industry40Page from './Industry40Page';
+import AboutCourse40Page from './AboutCourse40page';
+import Industry40Page from './Industry40page';
+import MyCertificationsPage from './MyCertificationsPage';
+import SignIn from './Signin';
+import SignUp from './Signup'; 
 
 // ── Header Component ──
 function Header({ onNavigate }) {
@@ -20,9 +23,11 @@ function Header({ onNavigate }) {
       navigate('/mycourses');
       if (onNavigate) onNavigate();
     } else if (item === 'MY CERTIFICATIONS') {
-      console.log('Certifications');
+      navigate('/certifications');
+      if (onNavigate) onNavigate();
     } else if (item === 'SIGN-OUT') {
-      console.log('Sign out');
+      navigate('/signin');
+      if (onNavigate) onNavigate();
     }
   };
 
@@ -37,7 +42,7 @@ function Header({ onNavigate }) {
           </div>
           <div className="user-dropdown-wrap">
             <div className="user-email" onClick={() => setDropdownOpen(!dropdownOpen)}>
-              e23cseu0530@bennett.edu.in
+              e23cseu0649@bennett.edu.in
               <span className="material-symbols-outlined" style={{ fontSize: '18px', verticalAlign: 'middle', marginLeft: '4px' }}>expand_more</span>
             </div>
             {dropdownOpen && (
@@ -87,7 +92,7 @@ function MyProfilePage() {
     localChapterState: 'Uttar Pradesh',
     collegeName: 'Bennett University, Greater Noida, UTTAR PRADESH (6361)',
     universityName: 'Bennett University, Greater Noida, Gautam Buddha Nagar, UTTAR P...',
-    rollNo: 'E23CSEU0530',
+    rollNo: 'E23CSEU0649',
     degree: 'BTech',
     department: 'Computer Science and Engineering',
     studyYear: '3rd Year',
@@ -177,7 +182,7 @@ function MyProfilePage() {
             {renderField('Mobile Number', 'mobile')}
             <div className="mp-field-row">
               <div className="mp-field-label">Email <span className="mp-required">*</span></div>
-              <div className="mp-field-value"><div className="mp-input mp-readonly">e23cseu0530@bennett.edu.in</div></div>
+              <div className="mp-field-value"><div className="mp-input mp-readonly">e23cseu0649@bennett.edu.in</div></div>
             </div>
             {renderField('Date of Birth', 'dob')}
             {renderSelect('Gender', 'gender', ['Male', 'Female', 'Other'])}
@@ -296,7 +301,7 @@ function MyCoursesPage({ onGoToCourse }) {
 
   const handleGoToCourse = (id) => {
     if (id === 'ind40') navigate('/ind40');
-    else navigate('/');
+    else navigate('/tech-commercialization');
     if (onGoToCourse) onGoToCourse(id);
   };
 
@@ -387,21 +392,36 @@ function Footer() {
   );
 }
 
+// ── Layout wrapper (Header + Footer) for authenticated pages ──
+function AppLayout({ children }) {
+  return (
+    <div className="app-container">
+      <Header />
+      {children}
+      <Footer />
+    </div>
+  );
+}
+
 // ── Main App ──
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <Header />
-        <Routes>
-          <Route path="/" element={<TechnologyCommercialization />} />
-          <Route path="/profile" element={<MyProfilePage />} />
-          <Route path="/mycourses" element={<MyCoursesPage />} />
-          <Route path="/ind40" element={<Industry40Page />} />
-          <Route path="/ind40/about" element={<AboutCourse40Page />} />
-        </Routes>
-        <Footer />
-      </div>
+      <Routes>
+        {/* Sign-in page: no Header/Footer */}
+        <Route path="/signin" element={<SignIn />} />
+
+        {/* All other pages: with Header + Footer */}
+        <Route path="/" element={<AppLayout><TechnologyCommercialization /></AppLayout>} />
+        <Route path="/tech-commercialization" element={<AppLayout><TechnologyCommercialization /></AppLayout>} />
+        <Route path="/profile" element={<AppLayout><MyProfilePage /></AppLayout>} />
+        <Route path="/mycourses" element={<AppLayout><MyCoursesPage /></AppLayout>} />
+        <Route path="/ind40" element={<AppLayout><Industry40Page /></AppLayout>} />
+        <Route path="/ind40/about" element={<AppLayout><AboutCourse40Page /></AppLayout>} />
+        <Route path="/certifications" element={<AppLayout><MyCertificationsPage /></AppLayout>} />
+        <Route path="/signup" element={<SignUp />} /> 
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </Router>
   );
 }

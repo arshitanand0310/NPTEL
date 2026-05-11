@@ -48,16 +48,29 @@ function QuizPage({ title, dueDate, questions, userAnswers }) {
               <span className="quiz-points">1 Point</span>
             </div>
             <div className="quiz-options">
-              {q.options.map((opt, j) => (
-                <label className="quiz-option" key={j}>
-                  {isMulti ? (
-                    <input type="checkbox" checked={false} readOnly style={{ accentColor: '#555' }} />
-                  ) : (
-                    <input type="radio" name={`q${i}`} checked={false} readOnly />
-                  )}
-                  <span>{opt}</span>
-                </label>
-              ))}
+              {q.options.map((opt, j) => {
+                const isSelected = chosen.includes(j);
+                return (
+                  <label className="quiz-option" key={j}>
+                    {isMulti ? (
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        readOnly
+                        style={{ accentColor: '#555' }}
+                      />
+                    ) : (
+                      <input
+                        type="radio"
+                        name={`q${i}`}
+                        checked={isSelected}
+                        readOnly
+                      />
+                    )}
+                    <span>{opt}</span>
+                  </label>
+                );
+              })}
             </div>
             <div className="quiz-feedback">
               {isCorrect ? (

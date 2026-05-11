@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import QuizPage from './QuizPage';
 
@@ -862,6 +862,7 @@ const ind40Quiz6Questions = [
 const ind40Quiz6UserAnswers = ind40Quiz6Questions.map((q, i) => {
   if (i === 5) return [0];
   if (i === 8) return [0];
+  if (i === 9) return [0];
   return [...q.correct];
 });
 
@@ -1127,6 +1128,95 @@ function computeAssignmentScores() {
   });
 }
 
+// ── Avatar Dropdown Component ──
+function AvatarDropdown({ initials = 'AA', email = 'e23cseu0649@bennett.edu.in' }) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open]);
+
+  const menuItems = [
+    { icon: 'person', label: 'My Profile' },
+    { icon: 'menu_book', label: 'My Courses' },
+    { icon: 'verified', label: 'My Certifications' },
+    { icon: 'recommend', label: 'Course Recommendation' },
+    { icon: 'logout', label: 'Sign Out' },
+  ];
+
+  return (
+    <div style={{ position: 'relative' }} ref={dropdownRef}>
+      <div
+        className="nptel-user-avatar"
+        onClick={() => setOpen(prev => !prev)}
+        style={{ cursor: 'pointer', userSelect: 'none' }}
+      >
+        {initials}
+      </div>
+
+      {open && (
+        <div style={{
+          position: 'absolute',
+          top: 'calc(100% + 8px)',
+          right: 0,
+          background: '#fff',
+          borderRadius: '8px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          minWidth: '220px',
+          zIndex: 9999,
+          overflow: 'hidden',
+          border: '1px solid #e8e8e8',
+        }}>
+          {/* Email header */}
+          <div style={{
+            padding: '12px 16px',
+            color: '#1a73e8',
+            fontSize: '13px',
+            fontWeight: 500,
+            borderBottom: '1px solid #f0f0f0',
+            background: '#fafafa',
+          }}>
+            {email}
+          </div>
+
+          {/* Menu items */}
+          {menuItems.map(({ icon, label }) => (
+            <div
+              key={label}
+              onClick={() => setOpen(false)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '11px 16px',
+                fontSize: '14px',
+                color: '#333',
+                cursor: 'pointer',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#555' }}>
+                {icon}
+              </span>
+              {label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Student Progress Report Page ──
 function StudentProgressPage({ progressPercent, onBack }) {
   const [openSection, setOpenSection] = useState(null);
@@ -1141,7 +1231,7 @@ function StudentProgressPage({ progressPercent, onBack }) {
     { unit: 'Week 3', lessonPct: 0, hasAssignment: true, assignPct: 100 },
     { unit: 'Week 4', lessonPct: 0, hasAssignment: true, assignPct: 100 },
     { unit: 'Week 5', lessonPct: 0, hasAssignment: true, assignPct: 0 },
-    { unit: 'Week 6', lessonPct: 0, hasAssignment: true, assignPct: 0 },
+    { unit: 'Week 6', lessonPct: 0, hasAssignment: true, assignPct: 100 },
     { unit: 'Week 7', lessonPct: 0, hasAssignment: true, assignPct: 0 },
     { unit: 'Week 8', lessonPct: 0, hasAssignment: true, assignPct: 100 },
     { unit: 'Live session - 2026', lessonPct: 0, hasAssignment: false },
@@ -1179,7 +1269,7 @@ function StudentProgressPage({ progressPercent, onBack }) {
         </div>
         <div className="spr-info-row">
           <div className="spr-info-label">Email</div>
-          <div className="spr-info-value">e23cseu0530@bennett.edu.in</div>
+          <div className="spr-info-value">e23cseu0649@bennett.edu.in</div>
         </div>
         <div className="spr-info-row">
           <div className="spr-info-label">Name</div>
@@ -1205,12 +1295,12 @@ function StudentProgressPage({ progressPercent, onBack }) {
               <table className="spr-table">
                 <thead><tr><th>Title</th><th>Score</th></tr></thead>
                 <tbody>
-                {assignments.map((a, i) => {
-  const displayScores = [80, 80, 70, 90, 0, 0, 0, 90];
-  return (
-    <tr key={a.name}><td>{a.name}</td><td>{displayScores[i]}</td></tr>
-  );
-})}
+                  {assignments.map((a, i) => {
+                    const displayScores = [80, 80, 70, 90, 0, 70, 0, 90];
+                    return (
+                      <tr key={a.name}><td>{a.name}</td><td>{displayScores[i]}</td></tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -1254,7 +1344,7 @@ function StudentProgressPage({ progressPercent, onBack }) {
                         {u.hasAssignment ? (
                           <div className="spr-progress-cell">
                             <div className="spr-progress-bar-wrap">
-                            <div className="spr-progress-bar-fill" style={{ width: `${u.assignPct}%`, background: u.assignPct > 0 ? '#4caf50' : '#bdbdbd' }} />
+                              <div className="spr-progress-bar-fill" style={{ width: `${u.assignPct}%`, background: u.assignPct > 0 ? '#4caf50' : '#bdbdbd' }} />
                             </div>
                             <span className="spr-progress-pct">{u.assignPct}%</span>
                           </div>
@@ -1351,7 +1441,6 @@ function Industry40Page() {
     }, 2000);
   };
 
-  // Compute progress stats
   const allQuizzes = [
     { q: ind40Quiz1Questions, a: ind40Quiz1UserAnswers },
     { q: ind40Quiz2Questions, a: ind40Quiz2UserAnswers },
@@ -1374,7 +1463,7 @@ function Industry40Page() {
     }).length;
   });
 
-  const displayScores = [80, 80, 70, 90, 0, 0, 0, 90];
+  const displayScores = [80, 80, 70, 90, 0, 70, 0, 90];
   const progressPercent = Math.round(displayScores.reduce((a, b) => a + b, 0) / displayScores.length);
   const completedAssignments = allQuizzes.filter(({ q, a }) =>
     q.every((qq, i) => {
@@ -1384,47 +1473,47 @@ function Industry40Page() {
     })
   ).length;
 
- // ── Progress page: full-width, no sidebar ──
- if (showProgressPage) {
-  return (
-    <div className="nptel-course-page">
-      {loading && <div className="loading-overlay"><div className="loading-spinner" /></div>}
-      <div style={{ background: '#fff', borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: '52px' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-          {['About the course', 'Announcements', 'My Bookmarks', 'Q&A'].map(item => (
-  <span
-    key={item}
-    className={`nptel-course-nav-item${item === 'Announcements' ? ' nptel-course-nav-active' : ''}`}
-    style={{ cursor: item === 'About the course' ? 'pointer' : 'default' }}
-    onClick={() => item === 'About the course' && navigate('/ind40/about')}
-  >
-    {item}
-  </span>
-))}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#555', cursor: 'pointer' }}>accessibility</span>
-            <div className="nptel-user-avatar">AT</div>
+  if (showProgressPage) {
+    return (
+      <div className="nptel-course-page">
+        {loading && <div className="loading-overlay"><div className="loading-spinner" /></div>}
+        <div style={{ background: '#fff', borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: '52px' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {['About the course', 'Announcements', 'My Bookmarks', 'Q&A'].map(item => (
+                <span
+                  key={item}
+                  className={`nptel-course-nav-item${item === 'Announcements' ? ' nptel-course-nav-active' : ''}`}
+                  style={{ cursor: item === 'About the course' ? 'pointer' : 'default' }}
+                  onClick={() => item === 'About the course' && navigate('/ind40/about')}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#555', cursor: 'pointer' }}>accessibility</span>
+              {/* ── Avatar with dropdown ── */}
+              <AvatarDropdown initials="AA" email="e23cseu0649@bennett.edu.in" />
+            </div>
           </div>
         </div>
-      </div>
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', background: '#f0f2f5', width: '100%' }}>
+        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', background: '#f0f2f5', width: '100%' }}>
           <StudentProgressPage progressPercent={progressPercent} onBack={() => setShowProgressPage(false)} />
         </div>
-    </div>
-  );
-}
-
-return (
-  <div className="nptel-course-page">
-    {loading && (
-      <div className="loading-overlay">
-        <div className="loading-spinner" />
       </div>
-    )}
+    );
+  }
 
-    <div className="nptel-layout">
+  return (
+    <div className="nptel-course-page">
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner" />
+        </div>
+      )}
+
+      <div className="nptel-layout">
         {/* LEFT SIDEBAR */}
         <aside className="nptel-sidebar">
           <div className="nptel-sidebar-header">
@@ -1444,14 +1533,14 @@ return (
             <div className="nptel-sidebar-assignments">
               <span>{completedAssignments} of {allQuizzes.length} assignments completed</span>
               <span className="nptel-sidebar-progress-link" onClick={() => {
-  setLoading(true);
-  setTimeout(() => {
-    setLoading(false);
-    setShowProgressPage(true);
-  }, 2000);
-}}>
-  Progress details
-</span>
+                setLoading(true);
+                setTimeout(() => {
+                  setLoading(false);
+                  setShowProgressPage(true);
+                }, 2000);
+              }}>
+                Progress details
+              </span>
             </div>
           </div>
 
@@ -1515,73 +1604,73 @@ return (
           <div className="nptel-course-topnav">
             <div className="nptel-course-topnav-inner">
               <div className="nptel-course-nav-links">
-              <span className="nptel-course-nav-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/ind40/about')}>About the course</span>
+                <span className="nptel-course-nav-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/ind40/about')}>About the course</span>
                 <span className="nptel-course-nav-item nptel-course-nav-active">Announcements</span>
                 <span className="nptel-course-nav-item">My Bookmarks</span>
                 <span className="nptel-course-nav-item">Q&A</span>
               </div>
               <div className="nptel-course-nav-right">
                 <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#555', cursor: 'pointer' }}>accessibility</span>
-                <div className="nptel-user-avatar">AT</div>
+                {/* ── Avatar with dropdown ── */}
+                <AvatarDropdown initials="AA" email="e23cseu0649@bennett.edu.in" />
               </div>
             </div>
           </div>
 
           <div className="nptel-content-body">
-          {activePage === 'quiz1' ? (
-                <QuizPage title="Week 1: Assignment 1" dueDate="2026-02-25" questions={ind40Quiz1Questions} userAnswers={ind40Quiz1UserAnswers} />
-              ) : activePage === 'quiz2' ? (
-                <QuizPage title="Week 2: Assignment 2" dueDate="2026-03-04" questions={ind40Quiz2Questions} userAnswers={ind40Quiz2UserAnswers} />
-              ) : activePage === 'quiz3' ? (
-                <QuizPage title="Week 3: Assignment 3" dueDate="2026-03-11" questions={ind40Quiz3Questions} userAnswers={ind40Quiz3UserAnswers} />
-              ) : activePage === 'quiz4' ? (
-                <QuizPage title="Week 4: Assignment 4" dueDate="2026-03-18" questions={ind40Quiz4Questions} userAnswers={ind40Quiz4UserAnswers} />
-              ) : activePage === 'quiz5' ? (
-                <QuizPage title="Week 5: Assignment 5" dueDate="2026-03-25" questions={ind40Quiz5Questions} userAnswers={ind40Quiz5UserAnswers} />
-              ) : activePage === 'quiz6' ? (
-                <QuizPage title="Week 6: Assignment 6" dueDate="2026-04-01" questions={ind40Quiz6Questions} userAnswers={ind40Quiz6UserAnswers} />
-              ) : activePage === 'quiz7' ? (
-                <QuizPage title="Week 7: Assignment 7" dueDate="2026-04-08" questions={ind40Quiz7Questions} userAnswers={ind40Quiz7UserAnswers} />
-              ) : activePage === 'quiz8' ? (
-                <QuizPage title="Week 8: Assignment 8" dueDate="2026-04-15" questions={ind40Quiz8Questions} userAnswers={ind40Quiz8UserAnswers} />
-              ) : (
-                <>
-                  <h1>Industry 4.0: Managing The Digital Transformation</h1>
-                  <div className="intro-grid">
-                    <div>
-                      <h3>ABOUT THE COURSE:</h3>
-                      <p>This course explores the disruptive forces of Industry 4.0 and its transformative impact on manufacturing and adjacent sectors.</p>
-                    </div>
-                    <iframe
-                      className="intro-image"
-                      src="https://www.youtube.com/embed/sqGM2XA8G94"
-                      title="Course Introduction"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
+            {activePage === 'quiz1' ? (
+              <QuizPage title="Week 1: Assignment 1" dueDate="2026-02-25" questions={ind40Quiz1Questions} userAnswers={ind40Quiz1UserAnswers} />
+            ) : activePage === 'quiz2' ? (
+              <QuizPage title="Week 2: Assignment 2" dueDate="2026-03-04" questions={ind40Quiz2Questions} userAnswers={ind40Quiz2UserAnswers} />
+            ) : activePage === 'quiz3' ? (
+              <QuizPage title="Week 3: Assignment 3" dueDate="2026-03-11" questions={ind40Quiz3Questions} userAnswers={ind40Quiz3UserAnswers} />
+            ) : activePage === 'quiz4' ? (
+              <QuizPage title="Week 4: Assignment 4" dueDate="2026-03-18" questions={ind40Quiz4Questions} userAnswers={ind40Quiz4UserAnswers} />
+            ) : activePage === 'quiz5' ? (
+              <QuizPage title="Week 5: Assignment 5" dueDate="2026-03-25" questions={ind40Quiz5Questions} userAnswers={ind40Quiz5UserAnswers} />
+            ) : activePage === 'quiz6' ? (
+              <QuizPage title="Week 6: Assignment 6" dueDate="2026-04-01" questions={ind40Quiz6Questions} userAnswers={ind40Quiz6UserAnswers} />
+            ) : activePage === 'quiz7' ? (
+              <QuizPage title="Week 7: Assignment 7" dueDate="2026-04-08" questions={ind40Quiz7Questions} userAnswers={ind40Quiz7UserAnswers} />
+            ) : activePage === 'quiz8' ? (
+              <QuizPage title="Week 8: Assignment 8" dueDate="2026-04-15" questions={ind40Quiz8Questions} userAnswers={ind40Quiz8UserAnswers} />
+            ) : (
+              <>
+                <h1>Industry 4.0: Managing The Digital Transformation</h1>
+                <div className="intro-grid">
+                  <div>
+                    <h3>ABOUT THE COURSE:</h3>
+                    <p>This course explores the disruptive forces of Industry 4.0 and its transformative impact on manufacturing and adjacent sectors.</p>
                   </div>
-                  <div className="details-section">
-                    <h3>INTENDED AUDIENCE:</h3>
-                    <p>Both Faculty and Students of Management and Engg discipline, Interested industry professionals.</p>
-                    <div className="prof-card">
-                      <div className="prof-left">
-                        <img className="prof-image" src="https://storage.googleapis.com/swayam2-node/Jan2026_instructor_images/95_jan_26.jpg" alt="Prof. Murli Dhar Agrawal" />
-                        <div className="prof-name">Prof. Murli Dhar Agrawal</div>
-                        <div className="prof-institute">SJMSOM, IIT Bombay</div>
-                      </div>
-                      <div className="prof-bio">
-                        <p>Prof M D Agrawal, visiting faculty, is a thought leader, coach, seasoned speaker and trainer.</p>
-                      </div>
+                  <iframe
+                    className="intro-image"
+                    src="https://www.youtube.com/embed/sqGM2XA8G94"
+                    title="Course Introduction"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+                <div className="details-section">
+                  <h3>INTENDED AUDIENCE:</h3>
+                  <p>Both Faculty and Students of Management and Engg discipline, Interested industry professionals.</p>
+                  <div className="prof-card">
+                    <div className="prof-left">
+                      <img className="prof-image" src="https://storage.googleapis.com/swayam2-node/Jan2026_instructor_images/95_jan_26.jpg" alt="Prof. Murli Dhar Agrawal" />
+                      <div className="prof-name">Prof. Murli Dhar Agrawal</div>
+                      <div className="prof-institute">SJMSOM, IIT Bombay</div>
                     </div>
-                    <h3>COURSE LAYOUT</h3>
-                    <ul>{ind40LayoutWeeks.map(({ label, desc }) => (<li key={label}><strong>{label}</strong> {desc}</li>))}</ul>
-                    <h3>BOOKS AND REFERENCES</h3>
-                    <ol>{ind40Books.map((item) => <li key={item}>{item}</li>)}</ol>
+                    <div className="prof-bio">
+                      <p>Prof M D Agrawal, visiting faculty, is a thought leader, coach, seasoned speaker and trainer.</p>
+                    </div>
                   </div>
-                </>
-              )}
-            </div>
-          
+                  <h3>COURSE LAYOUT</h3>
+                  <ul>{ind40LayoutWeeks.map(({ label, desc }) => (<li key={label}><strong>{label}</strong> {desc}</li>))}</ul>
+                  <h3>BOOKS AND REFERENCES</h3>
+                  <ol>{ind40Books.map((item) => <li key={item}>{item}</li>)}</ol>
+                </div>
+              </>
+            )}
+          </div>
         </main>
       </div>
     </div>

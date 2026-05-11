@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import QuizPage from './QuizPage';
 
@@ -68,9 +68,9 @@ const highlights = [
 
 const audience = [
   'All Engineering, Science, Arts, and Commerce Faculty & Students, interested in Management & Entrepreneurship.',
-  'Young professionals, Entrepreneurs (e.g, Product, Brand, and R&D Managers), and aspiring Entrepreneurs planning to launch new products or start a new business venture.',
-  'Micro Entrepreneurs, MSMEs, and Family Business Owners.',
-  'Faculty, Incubator Managers, and R&D Laboratory Heads.',
+  'Young professionals, Entrepreneurs (e.g, Product, Brand, and R&D Managers), and aspiring Entrepreneurs planning to launch new products or start a new business venture',
+  'Micro Entrepreneurs, MSMEs, and Family Business Owners',
+  'Faculty, Incubator Managers, and R&D Laboratory Heads',
 ];
 
 const layoutWeeks = [
@@ -88,10 +88,9 @@ const books = [
   'Various Industry Reports, Company Analysis, Websites: Will be referred to and provided with links during the course modules.',
 ];
 
-// ── Week 1 Quiz Questions (exact from screenshots) ──
+// ── Week 1 Quiz Questions ──
 const quiz1Questions = [
   {
-    // Q1 — correct: [2]
     q: 'Why are breakthrough innovations extremely rare among new product launches in India?',
     options: [
       'High cost of technology development',
@@ -103,7 +102,6 @@ const quiz1Questions = [
     type: 'single',
   },
   {
-    // Q2 — correct: [1]
     q: 'In the Nielsen Breakthrough Innovation framework, endurance refers to:',
     options: [
       'Product survival beyond ideation',
@@ -115,7 +113,6 @@ const quiz1Questions = [
     type: 'single',
   },
   {
-    // Q3 — correct: [2]
     q: 'The Accelerated Startup Discovery Process (ASDP) is best described as:',
     options: [
       'A linear business planning tool',
@@ -127,7 +124,6 @@ const quiz1Questions = [
     type: 'single',
   },
   {
-    // Q4 — correct: [2]  ← WRONG (user picks [0])
     q: 'Which principle best represents the core philosophy of ASDP?',
     options: [
       'Perfecting ideas before market entry',
@@ -139,7 +135,6 @@ const quiz1Questions = [
     type: 'single',
   },
   {
-    // Q5 — correct: [2]
     q: 'According to startup failure data discussed in the course, the most common reason startups fail is:',
     options: [
       'Weak technology',
@@ -151,7 +146,6 @@ const quiz1Questions = [
     type: 'single',
   },
   {
-    // Q6 — correct: [2]
     q: 'Which of the following is NOT an outcome of the ASDP framework?',
     options: [
       'Discovery of customer value proposition',
@@ -163,7 +157,6 @@ const quiz1Questions = [
     type: 'single',
   },
   {
-    // Q7 — correct: [2]
     q: 'The primary objective of Disciplined Innovation is to:',
     options: [
       'Eliminate entrepreneurial uncertainty',
@@ -175,7 +168,6 @@ const quiz1Questions = [
     type: 'single',
   },
   {
-    // Q8 — correct: [1]
     q: 'The 8C Problem Discovery framework is mainly used to:',
     options: [
       'Assess technology maturity',
@@ -187,7 +179,6 @@ const quiz1Questions = [
     type: 'single',
   },
   {
-    // Q9 — correct: [2]
     q: 'Which framework focuses on ensuring that a product succeeds in the market?',
     options: [
       'Technology Readiness Levels (TRL)',
@@ -199,7 +190,6 @@ const quiz1Questions = [
     type: 'single',
   },
   {
-    // Q10 — correct: [1]  ← WRONG (user picks [0])
     q: 'Translational research is important for technology commercialization because it:',
     options: [
       'Emphasizes academic publication',
@@ -212,11 +202,10 @@ const quiz1Questions = [
   },
 ];
 
-// 8 correct, 2 wrong: Q4 (index 3) and Q10 (index 9) are wrong
 const quiz1UserAnswers = quiz1Questions.map((q, i) => {
-  if (i === 3) return [0]; // Wrong: picks "Perfecting ideas before market entry"
-  if (i === 9) return [0]; // Wrong: picks "Emphasizes academic publication"
-  return [...q.correct];   // All others correct
+  if (i === 3) return [0];
+  if (i === 9) return [0];
+  return [...q.correct];
 });
 
 // ── Week 2 Quiz Questions ──
@@ -752,7 +741,7 @@ const quiz4UserAnswers = quiz4Questions.map((q, i) => {
   return [...q.correct];
 });
 
-// ── Helper: check if a single answer is correct ──
+// ── Helpers ──
 function isAnswerCorrect(qq, chosen) {
   const correct = qq.correct;
   return (
@@ -762,7 +751,6 @@ function isAnswerCorrect(qq, chosen) {
   );
 }
 
-// ── Helper: compute assignment scores ──
 function computeAssignmentScores() {
   const quizzes = [
     { name: 'Week 1: Assignment 1', questions: quiz1Questions, answers: quiz1UserAnswers },
@@ -776,7 +764,6 @@ function computeAssignmentScores() {
   });
 }
 
-// ── Compute overall progress percent from quiz scores ──
 function computeProgressPercent() {
   const allQuizzes = [
     { q: quiz1Questions, a: quiz1UserAnswers },
@@ -793,6 +780,387 @@ function computeProgressPercent() {
   return parseFloat(((totalCorrect / totalQuestions) * 100).toFixed(2));
 }
 
+// ── Discussion Forum Modal ──
+function DiscussionForumModal({ onClose }) {
+  return (
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 10000,
+      backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)',
+      background: 'rgba(0,0,0,0.35)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <div style={{
+        background: '#fff',
+        borderRadius: '10px',
+        width: '460px',
+        maxWidth: '90vw',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.22)',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          background: '#2196f3',
+          color: '#fff',
+          padding: '16px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <span style={{ fontWeight: 700, fontSize: '16px' }}>Discussion Forum</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '20px', cursor: 'pointer', lineHeight: 1 }} onClick={onClose}>close</span>
+        </div>
+        <div style={{ padding: '24px 20px 16px' }}>
+          <p style={{ margin: '0 0 14px', color: '#333', lineHeight: '1.65', fontSize: '14px' }}>
+            You are being redirected to Google discussion forum where you can discuss
+            your queries with the course faculty, as well as other students of this course.
+          </p>
+          <p style={{ margin: 0, fontWeight: 700, color: '#222', fontSize: '14px' }}>Do you want to continue?</p>
+        </div>
+        <div style={{ padding: '12px 20px 20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+          <button onClick={onClose} style={{ padding: '9px 22px', borderRadius: '6px', border: '1px solid #ccc', background: '#fff', fontSize: '14px', cursor: 'pointer', color: '#333', fontWeight: 500 }}>Cancel</button>
+          <button
+            onClick={() => { window.open('https://groups.google.com/a/nptel.iitm.ac.in/g/noc26-mg79-discuss?pli=1', '_blank', 'noopener,noreferrer'); onClose(); }}
+            style={{ padding: '9px 22px', borderRadius: '6px', border: 'none', background: '#1a73e8', fontSize: '14px', cursor: 'pointer', color: '#fff', fontWeight: 600 }}
+          >Yes, Continue</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── My Bookmarks Modal ──
+function MyBookmarksModal({ onClose }) {
+  return (
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 10000,
+      backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)',
+      background: 'rgba(0,0,0,0.35)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <div style={{
+        background: '#fff',
+        borderRadius: '10px',
+        width: '680px',
+        maxWidth: '90vw',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.22)',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          background: '#2196f3',
+          color: '#fff',
+          padding: '16px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>bookmark</span>
+            <span style={{ fontWeight: 700, fontSize: '16px' }}>My Bookmarks</span>
+          </div>
+          <span className="material-symbols-outlined" style={{ fontSize: '20px', cursor: 'pointer', lineHeight: 1 }} onClick={onClose}>close</span>
+        </div>
+        <div style={{ padding: '28px 24px', minHeight: '80px', display: 'flex', alignItems: 'center' }}>
+          <p style={{ margin: 0, color: '#555', fontSize: '14px' }}>No bookmarks found.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Avatar Dropdown Component ──
+// ── UPDATED: Sign Out now navigates to /signin ──
+function AvatarDropdown({ initials = 'AA', email = 'e23cseu0649@bennett.edu.in' }) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open]);
+
+  const menuItems = [
+    { icon: 'person', label: 'My Profile', path: '/profile' },
+    { icon: 'menu_book', label: 'My Courses', path: '/mycourses' },
+    { icon: 'verified', label: 'My Certifications', path: '/certifications' },
+    { icon: 'logout', label: 'Sign Out', path: '/signin' },
+  ];
+
+  const handleMenuClick = (item) => {
+    setOpen(false);
+    navigate(item.path);
+  };
+
+  return (
+    <div style={{ position: 'relative' }} ref={dropdownRef}>
+      <div
+        className="nptel-user-avatar"
+        onClick={() => setOpen(prev => !prev)}
+        style={{ cursor: 'pointer', userSelect: 'none' }}
+      >
+        {initials}
+      </div>
+
+      {open && (
+        <div style={{
+          position: 'absolute',
+          top: 'calc(100% + 8px)',
+          right: 0,
+          background: '#fff',
+          borderRadius: '8px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          minWidth: '220px',
+          zIndex: 9999,
+          overflow: 'hidden',
+          border: '1px solid #e8e8e8',
+        }}>
+          <div style={{
+            padding: '12px 16px',
+            color: '#1a73e8',
+            fontSize: '13px',
+            fontWeight: 500,
+            borderBottom: '1px solid #f0f0f0',
+            background: '#fafafa',
+          }}>
+            {email}
+          </div>
+          {menuItems.map((item) => (
+            <div
+              key={item.label}
+              onClick={() => handleMenuClick(item)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '11px 16px',
+                fontSize: '14px',
+                color: '#333',
+                cursor: 'pointer',
+                transition: 'background 0.15s',
+                borderBottom: '1px solid #f5f5f5',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#555' }}>
+                {item.icon}
+              </span>
+              {item.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── About the Course Page ──
+function AboutCoursePage() {
+  const [activeSection, setActiveSection] = useState('Course Information');
+
+  const navItems = [
+    'Course Information',
+    'Summary',
+    'Course outline',
+    'Books and References',
+    'Instructor Bio',
+    'Course Certificate',
+  ];
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'Summary':
+        return (
+          <div style={{ padding: '24px 32px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '16px' }}>Summary</h2>
+            <p>This course introduces participants to <strong>Disciplined Innovation</strong>, a practical methodology to navigate the complexities of bringing ideas to market, ensuring both technical feasibility and commercial success.</p>
+          </div>
+        );
+      case 'Course outline':
+        return (
+          <div style={{ padding: '24px 32px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '16px' }}>Course Outline</h2>
+            <ul style={{ paddingLeft: '20px', lineHeight: '2' }}>
+              {layoutWeeks.map(({ label, desc }) => (
+                <li key={label}><strong>{label}</strong> {desc}</li>
+              ))}
+            </ul>
+          </div>
+        );
+      case 'Books and References':
+        return (
+          <div style={{ padding: '24px 32px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '16px' }}>Books and References</h2>
+            <ul style={{ paddingLeft: '20px', lineHeight: '2' }}>
+              {books.map(item => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+        );
+      case 'Instructor Bio':
+        return (
+          <div style={{ padding: '24px 32px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px' }}>Instructor Bio</h2>
+            <div style={{ display: 'flex', gap: '20px', marginBottom: '28px', alignItems: 'flex-start' }}>
+              <div style={{ textAlign: 'center', minWidth: '120px' }}>
+                <img src="https://storage.googleapis.com/swayam-node1-production.appspot.com/instructor/assets/i_1839.png" alt="Prof. Devdip Purkayastha" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }} />
+                <div style={{ fontWeight: 700, fontSize: '14px', marginTop: '8px' }}>Prof. Devdip Purkayastha</div>
+                <div style={{ fontSize: '12px', color: '#666' }}>IIT Bombay</div>
+              </div>
+              <p style={{ lineHeight: '1.7', color: '#444' }}>Prof. Devdip Purkayastha is a full time Professor-of-Practice at IIT Bombay's Desai Sethi School of Entrepreneurship. He has over 30 years of industry experience across marketing, strategy, and innovation management.</p>
+            </div>
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+              <div style={{ textAlign: 'center', minWidth: '120px' }}>
+                <img src="https://storage.googleapis.com/swayam2-node/Jan2026_instructor_images/105_Jan_26.jpg" alt="Prof. Rajkumar Hirwani" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }} />
+                <div style={{ fontWeight: 700, fontSize: '14px', marginTop: '8px' }}>Prof. Rajkumar Hirwani</div>
+                <div style={{ fontSize: '12px', color: '#666' }}>IIT Bombay</div>
+              </div>
+              <p style={{ lineHeight: '1.7', color: '#444' }}>Prof. Raj Hirwani has 40+ years of experience in Research, Technology and IP Management. He has worked extensively on technology commercialization and translational research frameworks.</p>
+            </div>
+          </div>
+        );
+      case 'Course Certificate':
+        return (
+          <div style={{ padding: '24px 32px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '16px' }}>Course Certificate</h2>
+            <p>The course is free to enroll and learn from. But if you want a certificate, you have to register and write the proctored exam conducted by us in person at any of the designated exam centres.</p>
+            <p>The exam is optional for a fee of <strong>Rs 1000/- (Rupees one thousand only)</strong>.</p>
+            <p><strong>Date and Time of Exams:</strong> April 18, 2026 Morning session 9am to 12 noon; Afternoon Session 2pm to 5pm.</p>
+            <h4 style={{ marginTop: '16px', marginBottom: '8px', fontWeight: 700 }}>CRITERIA TO GET A CERTIFICATE</h4>
+            <ul style={{ paddingLeft: '20px', lineHeight: '2' }}>
+              <li>Average assignment score = 25% of average of best 3 assignments out of the total 4 assignments given in the course.</li>
+              <li>Exam score = 75% of the proctored certification exam score out of 100</li>
+              <li>Final score = Average assignment score + Exam score</li>
+            </ul>
+            <div style={{ background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', padding: '12px 16px', marginTop: '12px', fontWeight: 600 }}>
+              YOU WILL BE ELIGIBLE FOR A CERTIFICATE ONLY IF AVERAGE ASSIGNMENT SCORE &gt;=10/25 AND EXAM SCORE &gt;= 30/75.
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <div style={{ padding: '24px 32px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Course Information</h2>
+              
+            </div>
+            <div style={{ borderRadius: '10px', overflow: 'hidden', marginBottom: '28px', background: '#000' }}>
+              <iframe
+                width="100%"
+                height="420"
+                src="https://www.youtube.com/embed/-jxH0DGIKx4"
+                title="Course Introduction - Technology Commercialization & New Product Development"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{ display: 'block', border: 'none' }}
+              />
+            </div>
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>ABOUT THE COURSE:</h3>
+              <h4 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#1a1a1a' }}>Disciplined Innovation</h4>
+              <p style={{ lineHeight: '1.7', color: '#333', marginBottom: '12px' }}>
+                Participants will be introduced to <strong>"Disciplined Innovation"</strong>, a practical methodology to navigate the complexities of bringing ideas to market, ensuring both technical feasibility and commercial success.
+              </p>
+              <ol style={{ paddingLeft: '20px', lineHeight: '2', color: '#333' }}>
+                {highlights.map(({ label, desc }) => (
+                  <li key={label}><strong>{label}</strong> {desc}</li>
+                ))}
+              </ol>
+              <h4 style={{ fontSize: '15px', fontWeight: 700, marginTop: '16px', marginBottom: '8px', color: '#1a1a1a' }}>Access to customised AI Tools</h4>
+              <p style={{ lineHeight: '1.7', color: '#333', marginBottom: '12px' }}>
+                Participants will get access to <strong>customised AI Tools</strong> and be able to explore a wide range of Startup Business Ideas, Technology Concepts, New Product Launch &amp; Financial Planning.
+              </p>
+              <p style={{ lineHeight: '1.7', color: '#333' }}>
+                Whether you're an academic aiming to bridge research and industry, a professional driving product innovation, or an entrepreneur building the next big startup, this course equips you with the knowledge, frameworks, and skills to succeed in today's competitive technology landscape.
+              </p>
+            </div>
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', textTransform: 'uppercase' }}>INTENDED AUDIENCE:</h3>
+              <ol style={{ paddingLeft: '20px', lineHeight: '2', color: '#333' }}>
+                {audience.map(item => <li key={item}>{item}</li>)}
+              </ol>
+            </div>
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', textTransform: 'uppercase' }}>INDUSTRY SUPPORT:</h3>
+              <p style={{ lineHeight: '1.7', color: '#333', marginBottom: '10px' }}>
+                Entrepreneurship &amp; Atmanirbharta based on indigenous technology development are national priorities for India.
+              </p>
+              <p style={{ lineHeight: '1.7', color: '#333' }}>
+                Various Ministries, PSUs, Incubators, Higher Education Institutes, and private organizations support entrepreneurship &amp; indigenous technology/product development through grants, CSR funds, and R&amp;D partnering.
+              </p>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
+              <span style={{ fontSize: '13px', color: '#555' }}>Share:</span>
+              {[
+                { bg: '#0077b5', label: 'in', title: 'LinkedIn' },
+                { bg: '#1da1f2', label: '𝕏', title: 'Twitter' },
+                { bg: '#1877f2', label: 'f', title: 'Facebook' },
+                { bg: '#25d366', label: '●', title: 'WhatsApp' },
+              ].map(({ bg, label, title }) => (
+                <div key={title} title={title} style={{ width: '32px', height: '32px', borderRadius: '50%', background: bg, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                  {label}
+                </div>
+              ))}
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid #ccc', color: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', cursor: 'pointer' }}>+</div>
+            </div>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', width: '100%', height: '100%', overflow: 'hidden' }}>
+      <div style={{ width: '260px', minWidth: '260px', background: '#fff', borderRight: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+        <div style={{ padding: '20px 18px', borderBottom: '1px solid #eee' }}>
+          <div style={{ fontSize: '11px', color: '#777', marginBottom: '4px' }}>Welcome to the course</div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: '#1a73e8', marginBottom: '8px', lineHeight: '1.4' }}>Technology Commercialization &amp; ...</div>
+          <div style={{ fontSize: '12px', color: '#333', fontWeight: 600, marginBottom: '4px' }}>By Prof. Devdip Purkayastha, Prof. Rajkumar Hirwani</div>
+          <div style={{ fontSize: '12px', color: '#555', marginBottom: '8px' }}>| IIT Bombay</div>
+          <div style={{ fontSize: '12px', color: '#555' }}>Learners enrolled: <strong style={{ color: '#1a73e8' }}>4526</strong></div>
+        </div>
+        <div style={{ flex: 1 }}>
+          {navItems.map(item => (
+            <div
+              key={item}
+              onClick={() => setActiveSection(item)}
+              style={{
+                padding: '14px 18px',
+                fontSize: '14px',
+                color: activeSection === item ? '#1a73e8' : '#333',
+                fontWeight: activeSection === item ? 600 : 400,
+                borderLeft: activeSection === item ? '3px solid #1a73e8' : '3px solid transparent',
+                background: activeSection === item ? '#f0f6ff' : 'transparent',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { if (activeSection !== item) e.currentTarget.style.background = '#f9f9f9'; }}
+              onMouseLeave={e => { if (activeSection !== item) e.currentTarget.style.background = 'transparent'; }}
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ flex: 1, overflowY: 'auto', background: '#fff' }}>
+        {renderContent()}
+      </div>
+    </div>
+  );
+}
+
 // ── Student Progress Report Page ──
 function StudentProgressPage({ progressPercent, onBack }) {
   const [openSection, setOpenSection] = useState(null);
@@ -802,55 +1170,34 @@ function StudentProgressPage({ progressPercent, onBack }) {
     { unit: 'About NPTEL', lessonPct: 0, hasAssignment: false },
     { unit: 'How does an NPTEL online course work?', lessonPct: 0, hasAssignment: false },
     { unit: 'Week 0', lessonPct: 100, hasAssignment: false },
-    { unit: 'Week 1', lessonPct: 50, hasAssignment: true, assignPct: 100 },   // ← was 0
-    { unit: 'Week 2', lessonPct: 28.57, hasAssignment: true, assignPct: 100 }, // ← was 0
-    { unit: 'Week 3', lessonPct: 0, hasAssignment: true, assignPct: 100 },     // ← was 0
-    { unit: 'Week 4', lessonPct: 16.67, hasAssignment: true, assignPct: 100 }, // ← was 0
+    { unit: 'Week 1', lessonPct: 50, hasAssignment: true, assignPct: 100 },
+    { unit: 'Week 2', lessonPct: 28.57, hasAssignment: true, assignPct: 100 },
+    { unit: 'Week 3', lessonPct: 0, hasAssignment: true, assignPct: 100 },
+    { unit: 'Week 4', lessonPct: 16.67, hasAssignment: true, assignPct: 100 },
   ];
 
-  const toggleSection = (section) => {
-    setOpenSection(prev => prev === section ? null : section);
-  };
+  const toggleSection = (section) => setOpenSection(prev => prev === section ? null : section);
 
   return (
     <div style={{ display: 'flex', flex: 1, overflow: 'hidden', background: '#f0f2f5' }}>
-      {/* LEFT INFO PANEL */}
       <div className="spr-standalone-left">
-        <div className="spr-course-title">
-          Technology Commercialization &amp; New Product Development
-        </div>
+        <div className="spr-course-title">Technology Commercialization &amp; New Product Development</div>
         <div className="spr-circle-wrap">
           <svg width="120" height="120" viewBox="0 0 120 120">
             <circle cx="60" cy="60" r="50" fill="none" stroke="#e0e0e0" strokeWidth="8" />
-            <circle
-              cx="60" cy="60" r="50"
-              fill="none"
-              stroke="#4caf50"
-              strokeWidth="8"
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#4caf50" strokeWidth="8"
               strokeDasharray={`${2 * Math.PI * 50 * progressPercent / 100} ${2 * Math.PI * 50 * (1 - progressPercent / 100)}`}
-              strokeLinecap="round"
-              transform="rotate(-90 60 60)"
-            />
+              strokeLinecap="round" transform="rotate(-90 60 60)" />
           </svg>
           <div className="spr-circle-pct">{progressPercent}%</div>
         </div>
         <div className="spr-course-progress-label">Course Progress</div>
         <div className="spr-divider" />
-        <div className="spr-info-row">
-          <div className="spr-info-label">Date Enrolled</div>
-          <div className="spr-info-value">2026-02-15</div>
-        </div>
-        <div className="spr-info-row">
-          <div className="spr-info-label">Email</div>
-          <div className="spr-info-value">e23cseu0530@bennett.edu.in</div>
-        </div>
-        <div className="spr-info-row">
-          <div className="spr-info-label">Name</div>
-          <div className="spr-info-value spr-name">Arshit</div>
-        </div>
+        <div className="spr-info-row"><div className="spr-info-label">Date Enrolled</div><div className="spr-info-value">2026-02-15</div></div>
+        <div className="spr-info-row"><div className="spr-info-label">Email</div><div className="spr-info-value">e23cseu0649@bennett.edu.in</div></div>
+        <div className="spr-info-row"><div className="spr-info-label">Name</div><div className="spr-info-value spr-name">Arshit</div></div>
       </div>
 
-      {/* RIGHT CONTENT PANEL */}
       <div className="spr-standalone-right">
         <div className="spr-back-link" onClick={onBack}>← Back to Course Outline</div>
         <h2 className="spr-page-title">Student Progress Report</h2>
@@ -858,21 +1205,17 @@ function StudentProgressPage({ progressPercent, onBack }) {
         <div className="spr-accordion">
           <div className="spr-accordion-header" onClick={() => toggleSection('assignments')}>
             <span className="spr-accordion-title">Assignment Scores</span>
-            <span className="material-symbols-outlined spr-accordion-icon">
-              {openSection === 'assignments' ? 'expand_less' : 'expand_more'}
-            </span>
+            <span className="material-symbols-outlined spr-accordion-icon">{openSection === 'assignments' ? 'expand_less' : 'expand_more'}</span>
           </div>
           {openSection === 'assignments' && (
             <div className="spr-accordion-body">
               <table className="spr-table">
                 <thead><tr><th>Title</th><th>Score</th></tr></thead>
                 <tbody>
-                {assignments.map((a, i) => {
-  const displayScores = [80, 70, 90, 70];
-  return (
-    <tr key={a.name}><td>{a.name}</td><td>{displayScores[i]}</td></tr>
-  );
-})}
+                  {assignments.map((a, i) => {
+                    const displayScores = [80, 70, 90, 70];
+                    return <tr key={a.name}><td>{a.name}</td><td>{displayScores[i]}</td></tr>;
+                  })}
                 </tbody>
               </table>
             </div>
@@ -882,22 +1225,14 @@ function StudentProgressPage({ progressPercent, onBack }) {
         <div className="spr-accordion">
           <div className="spr-accordion-header" onClick={() => toggleSection('unitwise')}>
             <span className="spr-accordion-title">Unit Wise Progress</span>
-            <span className="material-symbols-outlined spr-accordion-icon">
-              {openSection === 'unitwise' ? 'expand_less' : 'expand_more'}
-            </span>
+            <span className="material-symbols-outlined spr-accordion-icon">{openSection === 'unitwise' ? 'expand_less' : 'expand_more'}</span>
           </div>
           {openSection === 'unitwise' && (
             <div className="spr-accordion-body">
-              <div className="spr-unit-note">
-                Note : The latest Course and Unit progress will be reflected within 24 hours.
-              </div>
+              <div className="spr-unit-note">Note : The latest Course and Unit progress will be reflected within 24 hours.</div>
               <table className="spr-table">
                 <thead>
-                  <tr>
-                    <th>Unit</th>
-                    <th>Lesson Progress</th>
-                    <th>Assignments Progress</th>
-                  </tr>
+                  <tr><th>Unit</th><th>Lesson Progress</th><th>Assignments Progress</th></tr>
                 </thead>
                 <tbody>
                   {unitWiseData.map(u => (
@@ -906,27 +1241,20 @@ function StudentProgressPage({ progressPercent, onBack }) {
                       <td>
                         <div className="spr-progress-cell">
                           <div className="spr-progress-bar-wrap">
-                            <div
-                              className="spr-progress-bar-fill"
-                              style={{ width: `${u.lessonPct}%`, background: u.lessonPct > 0 ? '#4caf50' : '#bdbdbd' }}
-                            />
+                            <div className="spr-progress-bar-fill" style={{ width: `${u.lessonPct}%`, background: u.lessonPct > 0 ? '#4caf50' : '#bdbdbd' }} />
                           </div>
-                          <span className="spr-progress-pct">
-                            {u.lessonPct % 1 !== 0 ? u.lessonPct.toFixed(2) : u.lessonPct}%
-                          </span>
+                          <span className="spr-progress-pct">{u.lessonPct % 1 !== 0 ? u.lessonPct.toFixed(2) : u.lessonPct}%</span>
                         </div>
                       </td>
                       <td>
-                      {u.hasAssignment ? (
-  <div className="spr-progress-cell">
-    <div className="spr-progress-bar-wrap">
-      <div className="spr-progress-bar-fill" style={{ width: `${u.assignPct}%`, background: u.assignPct > 0 ? '#4caf50' : '#bdbdbd' }} />
-    </div>
-    <span className="spr-progress-pct">{u.assignPct}%</span>
-  </div>
-) : (
-  <span className="spr-dash">-</span>
-)}
+                        {u.hasAssignment ? (
+                          <div className="spr-progress-cell">
+                            <div className="spr-progress-bar-wrap">
+                              <div className="spr-progress-bar-fill" style={{ width: `${u.assignPct}%`, background: u.assignPct > 0 ? '#4caf50' : '#bdbdbd' }} />
+                            </div>
+                            <span className="spr-progress-pct">{u.assignPct}%</span>
+                          </div>
+                        ) : <span className="spr-dash">-</span>}
                       </td>
                     </tr>
                   ))}
@@ -939,9 +1267,7 @@ function StudentProgressPage({ progressPercent, onBack }) {
         <div className="spr-accordion">
           <div className="spr-accordion-header" onClick={() => toggleSection('grading')}>
             <span className="spr-accordion-title">Grading and Certifications Policy</span>
-            <span className="material-symbols-outlined spr-accordion-icon">
-              {openSection === 'grading' ? 'expand_less' : 'expand_more'}
-            </span>
+            <span className="material-symbols-outlined spr-accordion-icon">{openSection === 'grading' ? 'expand_less' : 'expand_more'}</span>
           </div>
           {openSection === 'grading' && (
             <div className="spr-accordion-body spr-policy-body">
@@ -985,6 +1311,9 @@ function TechnologyCommercialization() {
   const [activePage, setActivePage] = useState('quiz1');
   const [loading, setLoading] = useState(false);
   const [showProgressPage, setShowProgressPage] = useState(false);
+  const [showAboutPage, setShowAboutPage] = useState(false);
+  const [showQAModal, setShowQAModal] = useState(false);
+  const [showBookmarksModal, setShowBookmarksModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -1005,6 +1334,7 @@ function TechnologyCommercialization() {
 
   const handleSubitemClick = (label, quizParam) => {
     setShowProgressPage(false);
+    setShowAboutPage(false);
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -1026,46 +1356,74 @@ function TechnologyCommercialization() {
     q.every((qq, i) => isAnswerCorrect(qq, a[i]))
   ).length;
 
-  // ── Progress page: full-width, no sidebar ──
+  const topNavBar = () => (
+    <div style={{ background: '#fff', borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: '52px' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {['About the course', 'Announcements', 'My Bookmarks', 'Q&A'].map(item => (
+            <span
+              key={item}
+              className={`nptel-course-nav-item${
+                item === 'About the course' && showAboutPage ? ' nptel-course-nav-active' :
+                item === 'Announcements' && !showAboutPage ? ' nptel-course-nav-active' : ''
+              }`}
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                if (item === 'About the course') { setShowAboutPage(true); setShowProgressPage(false); }
+                else if (item === 'Announcements') { setShowAboutPage(false); setShowProgressPage(false); }
+                else if (item === 'My Bookmarks') setShowBookmarksModal(true);
+                else if (item === 'Q&A') setShowQAModal(true);
+              }}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#555', cursor: 'pointer' }}>accessibility</span>
+          <AvatarDropdown initials="AA" email="e23cseu0649@bennett.edu.in" />
+        </div>
+      </div>
+    </div>
+  );
+
+  if (showAboutPage) {
+    return (
+      <div className="nptel-course-page">
+        {loading && <div className="loading-overlay"><div className="loading-spinner" /></div>}
+        {showQAModal && <DiscussionForumModal onClose={() => setShowQAModal(false)} />}
+        {showBookmarksModal && <MyBookmarksModal onClose={() => setShowBookmarksModal(false)} />}
+        {topNavBar()}
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}><AboutCoursePage /></div>
+      </div>
+    );
+  }
+
   if (showProgressPage) {
     return (
       <div className="nptel-course-page">
         {loading && <div className="loading-overlay"><div className="loading-spinner" /></div>}
-        <div style={{ background: '#fff', borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: '52px' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              {['About the course', 'Announcements', 'My Bookmarks', 'Q&A'].map(item => (
-                <span key={item} className={`nptel-course-nav-item${item === 'Announcements' ? ' nptel-course-nav-active' : ''}`}>
-                  {item}
-                </span>
-              ))}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#555', cursor: 'pointer' }}>accessibility</span>
-              <div className="nptel-user-avatar">AT</div>
-            </div>
-          </div>
-        </div>
+        {showQAModal && <DiscussionForumModal onClose={() => setShowQAModal(false)} />}
+        {showBookmarksModal && <MyBookmarksModal onClose={() => setShowBookmarksModal(false)} />}
+        {topNavBar()}
         <StudentProgressPage progressPercent={progressPercent} onBack={() => setShowProgressPage(false)} />
       </div>
     );
   }
 
-  // ── Normal layout with sidebar ──
   return (
     <div className="nptel-course-page">
       {loading && <div className="loading-overlay"><div className="loading-spinner" /></div>}
+      {showQAModal && <DiscussionForumModal onClose={() => setShowQAModal(false)} />}
+      {showBookmarksModal && <MyBookmarksModal onClose={() => setShowBookmarksModal(false)} />}
 
       <div className="nptel-layout">
-        {/* LEFT SIDEBAR */}
         <aside className="nptel-sidebar">
           <div className="nptel-sidebar-header">
             <div className="nptel-sidebar-close">
               <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#555', cursor: 'pointer' }}>close</span>
             </div>
-            <div className="nptel-sidebar-course-title">
-              Technology Commercialization &amp; New Product Dev...
-            </div>
+            <div className="nptel-sidebar-course-title">Technology Commercialization &amp; New Product Dev...</div>
             <div className="nptel-sidebar-progress-row">
               <span className="nptel-sidebar-progress-label">Overall Course Progress</span>
               <span className="nptel-sidebar-progress-pct">{progressPercent}%</span>
@@ -1076,14 +1434,11 @@ function TechnologyCommercialization() {
             <div className="nptel-sidebar-assignments">
               <span>{completedAssignments} of {allQuizzes.length} assignments completed</span>
               <span className="nptel-sidebar-progress-link" onClick={() => {
-  setLoading(true);
-  setTimeout(() => {
-    setLoading(false);
-    setShowProgressPage(true);
-  }, 2000);
-}}>
-  Progress details
-</span>
+                setLoading(true);
+                setTimeout(() => { setLoading(false); setShowProgressPage(true); }, 2000);
+              }}>
+                Progress details
+              </span>
             </div>
           </div>
 
@@ -1093,10 +1448,7 @@ function TechnologyCommercialization() {
               const isExpanded = expandedItem === item.label;
               return (
                 <div className="nptel-outline-item" key={item.label}>
-                  <span
-                    className="nptel-outline-title"
-                    onClick={() => handleOutlineClick(item.label, hasChildren)}
-                  >
+                  <span className="nptel-outline-title" onClick={() => handleOutlineClick(item.label, hasChildren)}>
                     {hasChildren && (
                       <span className="material-symbols-outlined nptel-outline-chevron">
                         {isExpanded ? 'expand_more' : 'chevron_right'}
@@ -1112,7 +1464,6 @@ function TechnologyCommercialization() {
                         else if (child.label === 'Quiz: Week 2: Assignment 2') quizParam = 'quiz2';
                         else if (child.label === 'Quiz: Week 3: Assignment 3') quizParam = 'quiz3';
                         else if (child.label === 'Quiz: Week 4: Assignment 4') quizParam = 'quiz4';
-
                         const isActive = quizParam === activePage;
                         return (
                           <div
@@ -1130,7 +1481,6 @@ function TechnologyCommercialization() {
                 </div>
               );
             })}
-
             <div className="nptel-mentor-section">
               <div className="nptel-mentor-title">Course Mentor</div>
               <div className="nptel-mentor-text">Mentors are not yet assigned for this course.</div>
@@ -1138,19 +1488,20 @@ function TechnologyCommercialization() {
           </div>
         </aside>
 
-        {/* RIGHT CONTENT */}
         <main className="nptel-content">
           <div className="nptel-course-topnav">
             <div className="nptel-course-topnav-inner">
               <div className="nptel-course-nav-links">
-                <span className="nptel-course-nav-item">About the course</span>
+                <span className="nptel-course-nav-item" style={{ cursor: 'pointer' }} onClick={() => { setShowAboutPage(true); setShowProgressPage(false); }}>
+                  About the course
+                </span>
                 <span className="nptel-course-nav-item nptel-course-nav-active">Announcements</span>
-                <span className="nptel-course-nav-item">My Bookmarks</span>
-                <span className="nptel-course-nav-item">Q&amp;A</span>
+                <span className="nptel-course-nav-item" style={{ cursor: 'pointer' }} onClick={() => setShowBookmarksModal(true)}>My Bookmarks</span>
+                <span className="nptel-course-nav-item" style={{ cursor: 'pointer' }} onClick={() => setShowQAModal(true)}>Q&amp;A</span>
               </div>
               <div className="nptel-course-nav-right">
                 <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#555', cursor: 'pointer' }}>accessibility</span>
-                <div className="nptel-user-avatar">AT</div>
+                <AvatarDropdown initials="AA" email="e23cseu0649@bennett.edu.in" />
               </div>
             </div>
           </div>
@@ -1165,70 +1516,7 @@ function TechnologyCommercialization() {
             ) : activePage === 'quiz4' ? (
               <QuizPage title="Week 4: Assignment 4" dueDate="2026-03-18" questions={quiz4Questions} userAnswers={quiz4UserAnswers} />
             ) : (
-              <>
-                <h1>Technology Commercialization &amp; New Product Development</h1>
-                <div className="intro-grid">
-                  <div>
-                    <h3>ABOUT THE COURSE:</h3>
-                    <h4>Disciplined Innovation</h4>
-                    <p>Participants will be introduced to <strong>"Disciplined Innovation"</strong>, a practical methodology to navigate the complexities of bringing ideas to market.</p>
-                    <ol>
-                      {highlights.map(({ label, desc }) => (
-                        <li key={label}><strong>{label}</strong> {desc}</li>
-                      ))}
-                    </ol>
-                    <h4>Access to customised AI Tools</h4>
-                    <p>Participants will get access to <strong>customised AI Tools</strong> and be able to explore a wide range of Startup Business Ideas.</p>
-                  </div>
-                  <iframe
-                    className="intro-image"
-                    src="https://www.youtube.com/embed/-jxH0DGIKx4"
-                    title="Course Introduction"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-                <div className="details-section">
-                  <h3>INTENDED AUDIENCE:</h3>
-                  <ul>{audience.map((item) => <li key={item}>{item}</li>)}</ul>
-                  <div className="prof-card">
-                    <div className="prof-left">
-                      <img className="prof-image" src="https://storage.googleapis.com/swayam-node1-production.appspot.com/instructor/assets/i_1839.png" alt="Prof. Devdip Purkayastha" />
-                      <div className="prof-name">Prof. Devdip Purkayastha</div>
-                      <div className="prof-institute">IIT Bombay</div>
-                    </div>
-                    <div className="prof-bio">
-                      <p>Prof. Devdip Purkayastha is a full time Professor-of-Practice at IIT Bombay.</p>
-                    </div>
-                  </div>
-                  <div className="prof-card">
-                    <div className="prof-left">
-                      <img className="prof-image" src="https://storage.googleapis.com/swayam2-node/Jan2026_instructor_images/105_Jan_26.jpg" alt="Prof. Rajkumar Hirwani" />
-                      <div className="prof-name">Prof. Rajkumar Hirwani</div>
-                      <div className="prof-institute">IIT Bombay</div>
-                    </div>
-                    <div className="prof-bio">
-                      <p>Prof. Raj Hirwani has 40+ years of experience in Research, Technology and IP Management.</p>
-                    </div>
-                  </div>
-                  <h3>COURSE LAYOUT</h3>
-                  <ul>{layoutWeeks.map(({ label, desc }) => (<li key={label}><strong>{label}</strong> {desc}</li>))}</ul>
-                  <h3>BOOKS AND REFERENCES</h3>
-                  <ul>{books.map((item) => <li key={item}>{item}</li>)}</ul>
-                  <h3>CERTIFICATE</h3>
-                  <p>The course is free to enroll and learn from. But if you want a certificate, you have to register and write the proctored exam.</p>
-                  <p>The exam is optional for a fee of <strong>Rs 1000/- (Rupees one thousand only)</strong>.</p>
-                  <p>Date and Time of Exams: <strong>April 18, 2026</strong> Morning session 9am to 12 noon; Afternoon Session 2pm to 5pm.</p>
-                  <h3>CRITERIA TO GET A CERTIFICATE</h3>
-                  <p>Average assignment score = 25% of average of best 3 assignments out of the total 4 assignments given in the course.</p>
-                  <p>Exam score = 75% of the proctored certification exam score out of 100.</p>
-                  <p><strong>Final score = Average assignment score + Exam score</strong></p>
-                  <div className="criteria-note">
-                    <strong>YOU WILL BE ELIGIBLE FOR A CERTIFICATE ONLY IF AVERAGE ASSIGNMENT SCORE &gt;=10/25 AND EXAM SCORE &gt;= 30/75.</strong>
-                  </div>
-                  <p><em>- NPTEL team</em></p>
-                </div>
-              </>
+              <AboutCoursePage />
             )}
           </div>
         </main>
