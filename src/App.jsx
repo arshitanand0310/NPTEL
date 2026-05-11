@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import './styles.css';
 
 import Technologycommercialization from './Technologycommercialization';
-import AboutCourse40Page from './AboutCourse40Page';
+import AboutCourse40Page from './AboutCourse40Page'; 
 import Industry40page from './Industry40page';
 import MyCertificationsPage from './MyCertificationsPage';
 import Signin from './Signin';
