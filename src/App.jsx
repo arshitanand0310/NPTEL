@@ -409,7 +409,7 @@ function App() {
     <Router>
       <Routes>
         {/* Sign-in page: no Header/Footer */}
-        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signin" element={<Signin />} />
 
         {/* All other pages: with Header + Footer */}
         <Route path="/" element={<AppLayout><TechnologyCommercialization /></AppLayout>} />
@@ -419,7 +419,7 @@ function App() {
         <Route path="/ind40" element={<AppLayout><Industry40Page /></AppLayout>} />
         <Route path="/ind40/about" element={<AppLayout><AboutCourse40Page /></AppLayout>} />
         <Route path="/certifications" element={<AppLayout><MyCertificationsPage /></AppLayout>} />
-        <Route path="/signup" element={<SignUp />} /> 
+        <Route path="/signup" element={<Signup />} /> 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
