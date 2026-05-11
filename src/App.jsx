@@ -4,7 +4,7 @@ import './styles.css';
 
 import TechnologyCommercialization from './Technologycommercialization';
 import AboutCourse40Page from './AboutCourse40page';
-import Industry40Page from './Industry40page';
+import Industry40page from './Industry40page';
 import MyCertificationsPage from './MyCertificationsPage';
 import SignIn from './Signin';
 import SignUp from './Signup'; 
